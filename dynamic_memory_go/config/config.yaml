@@ -1,0 +1,37 @@
+# DynamicMemoryGo 配置文件
+# 所有参数均可根据业务需求自定义调整
+
+# 存储配置
+storage:
+  # L0 工作记忆 - Redis 热存储配置
+  redis:
+    addr: "127.0.0.1:6379"
+    password: ""
+    db: 0
+  # L1/L2 情景/语义记忆 - MySQL 温存储配置
+  mysql:
+    dsn: "user:password@tcp(127.0.0.1:3306)/dynamic_memory?charset=utf8mb4&parseTime=True&loc=Local"
+  # 冷存储路径 - 用于休眠记忆的文件存储
+  cold_storage_path: "./cold_storage"
+
+# 记忆层级配置
+levels:
+  L0: # 工作记忆：临时对话缓存
+    max_items: 20        # 最大保留条数
+    expire_days: 7       # 过期时间（天）
+    light_weight_threshold: 0.1 # 轻量记忆权重阈值，低于此值仅存极简记录
+    upgrade_weight_threshold: 0.3 # 升级到L1的权重阈值
+  L1: # 情景记忆：重要互动记录
+    expire_days: 30      # 过期时间（天）
+    sleep_weight_threshold: 0.3 # 休眠权重阈值，低于此值进入冷存储
+    integrate_weight_threshold: 0.7 # 触发记忆整合的权重阈值
+  L2: # 语义记忆：长期概念沉淀
+    expire_days: 90      # 过期时间（天）
+    sleep_weight_threshold: 0.2 # 休眠权重阈值，低于此值进入冷存储
+
+# 核心标签配置：命中这些标签的记忆会被标记为核心互动
+core_tags: ["core", "identity", "key_business"]
+
+# Meta服务配置（Python侧的权重计算服务）
+meta_service:
+  addr: "127.0.0.1:50051"

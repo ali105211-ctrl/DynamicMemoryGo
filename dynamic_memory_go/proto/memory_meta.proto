@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package memory_meta;
+option go_package = "./pb;pb";
+
+// 记忆元数据计算请求
+message MemoryMetaRequest {
+  string raw_input = 1; // 原始输入文本
+}
+
+// 记忆元数据计算响应
+message MemoryMetaResponse {
+  float weight = 1;          // 重要性权重(0-1)
+  string semantic_summary = 2; // 语义摘要
+  repeated float vector = 3;    // 语义向量
+  repeated string tags = 4;     // 关联标签
+}
+
+// 向量提取请求
+message VectorRequest {
+  string input = 1; // 输入文本
+}
+
+// 向量提取响应
+message VectorResponse {
+  repeated float vector = 1; // 语义向量
+}
+
+// 记忆整合请求
+message IntegrateRequest {
+  repeated string memory_ids = 1; // 待整合的记忆ID列表
+}
+
+// 记忆整合响应
+message IntegrateResponse {
+  string content = 1;       // 整合后的内容
+  repeated string tags = 2; // 整合后的标签
+  repeated float vector = 3; // 整合后的向量
+  float weight = 4;         // 整合后的权重
+}
+
+// 记忆元数据服务
+service MemoryMetaService {
+  // 计算记忆元数据
+  rpc CalculateMemoryMeta(MemoryMetaRequest) returns (MemoryMetaResponse);
+  // 提取语义向量
+  rpc ExtractVector(VectorRequest) returns (VectorResponse);
+  // 整合相似记忆
+  rpc IntegrateMemories(IntegrateRequest) returns (IntegrateResponse);
+}
